@@ -1,0 +1,76 @@
+ {% extends 'nav.html' %}
+{% load static %}
+
+{% block content %}
+<main class="w-full p-6 flex flex-col gap-10 mt-8 min-h-screen bg-gray-100">
+    <!-- Fest Details Section -->
+    <section class="bg-white rounded-lg shadow-lg p-8 text-center w-full">
+        <h2 class="text-4xl font-bold text-indigo-800 mb-6">Details</h2>
+        
+        {% if fest %}
+            <div class="w-full h-96 bg-gray-200 rounded-lg flex flex-col items-center justify-center overflow-hidden">
+                {% if fest.fest_poster %}
+                    <img src="{{ fest.fest_poster.url }}" class="w-full h-80 object-cover rounded-lg" alt="{{ fest.fest_name }}">
+                {% else %}
+                    <div class="w-full h-80 flex items-center justify-center bg-gray-300 rounded-lg">
+                        <span class="text-gray-500">No Poster Available</span>
+                    </div>
+                {% endif %}
+                <h2 class="text-2xl font-bold mt-4 text-gray-900">{{ fest.fest_name }}</h2>
+                <p class="text-grey-700 font-semibold text-md font-poppins ">Date: {{ fest.event_start_date }}</p>
+            </div>
+        {% else %}
+            <p class="text-gray-500">No fest selected.</p>
+        {% endif %}
+    </section>
+
+    <!-- Events Section -->
+    <section class="w-full">
+        <h2 class="text-4xl font-bold text-indigo-800 text-center mb-6">Events</h2>
+        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8 w-full">
+            {% for event in events %}
+                <div class="bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition duration-300 w-full">
+                    <a href="{% url 'devent_detail' department.department_name fest.fest_name event.event_name %}">
+                        {% if event.event_poster %}
+                            <img src="{{ event.event_poster.url }}" alt="{{ event.event_name }}" class="rounded-md mb-4 w-full h-64 object-cover">
+                        {% else %}
+                            <img src="{% static 'images/default_poster.jpg' %}" alt="Default Event Poster" class="rounded-md mb-4 w-full h-64 object-cover">
+                        {% endif %}
+                        <p class="text-gray-600">Start Date: {{ fest.event_start_date }}</p>
+                        <p class="text-lg font-semibold text-center text-indigo-800 mt-2">{{ event.event_name }}</p>
+                    </a>
+                </div>
+            {% empty %}
+                <p class="text-center text-gray-500 w-full col-span-full">No events available.</p>
+            {% endfor %}
+        </div>
+    </section>
+
+    <!-- Popup Overlay -->
+    <div id="popup" class="hidden fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
+        <div id="popup-content" class="relative bg-white rounded-lg shadow-lg max-w-2xl w-full p-6">
+            <button onclick="closePopup()" class="absolute top-2 right-2 text-gray-600 hover:text-gray-900 text-2xl">&times;</button>
+            <div id="popup-body">
+                <!-- Event details will be loaded here -->
+            </div>
+        </div>
+    </div>
+</main>
+
+<!-- JavaScript for Fetching Event Data -->
+<script>
+    function fetchEventDetails(eventId) {
+        fetch(`/event/${eventId}/`)
+            .then(response => response.text())
+            .then(data => {
+                document.getElementById('popup-body').innerHTML = data;
+                document.getElementById('popup').classList.remove('hidden');
+            });
+    }
+
+    function closePopup() {
+        document.getElementById('popup').classList.add('hidden');
+    }
+</script>
+
+{% endblock %}

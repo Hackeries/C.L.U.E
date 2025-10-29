@@ -1,0 +1,43 @@
+{% extends 'nav.html' %} 
+{% load static %}
+{% load cache %}
+
+{% block content %}
+<main>
+    
+    
+
+    <section>
+        <div id="club_header" class="w-full h-[80vh] sm:h-[60vh] md:h-[70vh] lg:h-[80vh] bg-cover bg-center relative overflow-hidden mt-2 md:block hidden">
+                <div class="w-full h-full flex-shrink-0">
+                    <img src="{% static 'img/dept_header.jpg' %}" class="w-full h-full object-cover" alt="Event 2">
+                </div>
+                <div class="absolute inset-0 bg-black bg-opacity-50 flex justify-center items-center">
+                    <h2 class="text-white text-4xl md:text-6xl font-bold">Explore Departments</h2>
+                </div>
+       
+    </section>
+    
+
+    {% cache 600 department_list %}
+    <section class="relative w-full bg-gradient-to-r from-pink-100 to-blue-100 rounded-lg shadow-lg p-6 text-center text-gray-900">
+        
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-2 justify-around">  <!-- Closer boxes -->
+            {% for department in departments %}
+                <div class="bg-white rounded-lg shadow-md p-3 flex flex-col items-center w-64">  <!-- Compact padding -->
+                    {% if department.department_poster %}
+                        <img src="{{ department.department_poster.url }}" class="w-56 h-56 object-contain rounded-lg" alt="{{ department.department_name }} Poster">  <!-- Bigger image -->
+                    {% else %}
+                        <div class="w-56 h-56 bg-gray-300 flex items-center justify-center rounded-lg">
+                            <span class="text-gray-500">No Poster</span>
+                        </div>
+                    {% endif %}
+                    <h3 class="mt-2 text-lg font-semibold text-center">{{ department.department_name }}</h3>
+                    <a href="{% url 'department_fests' department.department_name %}" class="mt-1 bg-gradient-to-r from-pink-500 to-purple-500 text-white px-3 py-1 text-sm rounded-lg">See more</a>
+                </div>
+            {% endfor %}
+        </div>
+    </section>
+{% endcache %}
+</main>
+{% endblock %}

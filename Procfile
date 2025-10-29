@@ -1,0 +1,1 @@
+web: gunicorn clue.wsgi:application --log-file -

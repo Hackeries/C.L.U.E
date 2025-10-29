@@ -68,8 +68,16 @@ def LoginView(request):
 
         if user is not None:
             login(request, user)
+            # Session expiry based on Remember Me checkbox
+            remember_me = request.POST.get("remember_me")
+            if remember_me:
+                # Keep the session for configured duration
+                request.session.set_expiry(settings.SESSION_COOKIE_AGE)
+            else:
+                # Expire on browser close
+                request.session.set_expiry(0)
 
-            return redirect('profile') ### change 
+            return redirect('profile')  # change
         
         else:
             messages.error(request, "Invalid login credentials")

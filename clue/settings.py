@@ -97,37 +97,21 @@ TEMPLATES = [
 WSGI_APPLICATION = "clue.wsgi.application"
 
 # ====== DATABASE ======
-def _database_from_url(url: str | None):
-    if not url:
-        return {
-            "ENGINE": "django.db.backends.sqlite3",
-            "NAME": BASE_DIR / "db.sqlite3",
-        }
-    parsed = urlparse(url)
-    scheme = parsed.scheme.split("+")[0]
-    engine_map = {
-        "postgres": "django.db.backends.postgresql",
-        "postgresql": "django.db.backends.postgresql",
-        "mysql": "django.db.backends.mysql",
-        "sqlite": "django.db.backends.sqlite3",
-    }
-    engine = engine_map.get(scheme)
-    if not engine:
-        raise ValueError(f"Unsupported database scheme: {scheme}")
-    if engine.endswith("sqlite3"):
-        return {"ENGINE": engine, "NAME": parsed.path.lstrip("/") or (BASE_DIR / "db.sqlite3")}
-    return {
-        "ENGINE": engine,
-        "NAME": parsed.path.lstrip("/"),
-        "USER": parsed.username or "",
-        "PASSWORD": parsed.password or "",
-        "HOST": parsed.hostname or "",
-        "PORT": str(parsed.port or ""),
-    }
+import pymysql
+pymysql.install_as_MySQLdb()
 
 DATABASES = {
-    "default": _database_from_url(os.environ.get("DATABASE_URL"))
+    'default': {
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'clue_db',
+        'USER': 'django',
+        'PASSWORD': 'django123',
+        'HOST': 'localhost',
+        'PORT': '3306',
+    }
 }
+
+
 
 # ====== CACHE ======
 CACHES = {

@@ -73,9 +73,10 @@
                 <label style="position: absolute; top: 50%; left: 5px; color: #adadad; transform: translateY(-50%); font-size: 15px; pointer-events: none; transition: .3s;">Password</label>
             </div>
 
+            <!-- ✅ Clean merged Remember Me section -->
             <div style="display: flex; align-items: center; gap: 8px; margin: 10px 0 20px 0;">
-                <input type="checkbox" id="remember_me" name="remember_me" value="1" style="width: 16px; height: 16px;">
-                <label for="remember_me" style="font-size: 14px; color: #333;">Remember me</label>
+                <input class="form-check-input" type="checkbox" name="remember_me" id="rememberMe" style="width: 16px; height: 16px;">
+                <label class="form-check-label" for="rememberMe" style="font-size: 14px; color: #333;">Remember me</label>
             </div>
 
             <input type="submit" value="Login" 
@@ -98,8 +99,8 @@
 <script>
     // Hide success messages after 3 seconds
     setTimeout(function () {
-        let successMessages = document.querySelectorAll(".success-msg");
-        successMessages.forEach(function (msg) {
+        let messages = document.querySelectorAll("#messageContainer h4");
+        messages.forEach(function (msg) {
             msg.style.display = "none";
         });
     }, 3000);

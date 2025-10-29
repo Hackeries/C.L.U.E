@@ -1,11 +1,8 @@
 {
-  "framework": null,
-  "builds": [
-    { "src": "api/wsgi.py", "use": "@vercel/python" }
-  ],
+  "builds": [{ "src": "clue/wsgi.py", "use": "@vercel/python" }],
   "routes": [
     { "src": "/static/(.*)", "dest": "/staticfiles/$1" },
-    { "src": "/(.*)", "dest": "api/wsgi.py" }
+    { "src": "/(.*)", "dest": "clue/wsgi.py" }
   ],
   "buildCommand": "python -m pip install --upgrade pip && pip install -r requirements.txt && python manage.py collectstatic --noinput"
 }

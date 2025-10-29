@@ -100,16 +100,33 @@ WSGI_APPLICATION = "clue.wsgi.application"
 import pymysql
 pymysql.install_as_MySQLdb()
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'clue_db',
-        'USER': 'django',
-        'PASSWORD': 'django123',
-        'HOST': 'localhost',
-        'PORT': '3306',
+# Try reading from DATABASE_URL if provided
+DATABASE_URL = os.getenv("DATABASE_URL")
+
+if DATABASE_URL:
+    parsed = urlparse(DATABASE_URL)
+    DATABASES = {
+        "default": {
+            "ENGINE": "django.db.backends.mysql",
+            "NAME": parsed.path[1:],  # remove leading '/'
+            "USER": parsed.username,
+            "PASSWORD": parsed.password,
+            "HOST": parsed.hostname or "localhost",
+            "PORT": parsed.port or "3306",
+        }
     }
-}
+else:
+    # fallback if DATABASE_URL not defined
+    DATABASES = {
+        "default": {
+            "ENGINE": "django.db.backends.mysql",
+            "NAME": os.getenv("DB_NAME", "clue_db"),
+            "USER": os.getenv("DB_USER", "django"),
+            "PASSWORD": os.getenv("DB_PASSWORD", "django123"),
+            "HOST": os.getenv("DB_HOST", "localhost"),
+            "PORT": os.getenv("DB_PORT", "3306"),
+        }
+    }
 
 
 

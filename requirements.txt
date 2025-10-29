@@ -7,4 +7,4 @@ Django==5.1.5
  django-cors-headers==4.5.0
  Pillow==11.1.0
  psycopg2-binary==2.9.9
- mysqlclient==2.2.7
+ PyMySQL==1.1.1

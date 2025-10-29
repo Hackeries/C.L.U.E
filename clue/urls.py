@@ -13,6 +13,7 @@ urlpatterns = [
     path('event/',include('event.urls') ),
     path('department/',include('department.urls')),
     path('admin_handling/',include('admin_handling.urls')),
+    path('api/', include('api.urls')),
 ]
 
 if settings.DEBUG:

@@ -7,10 +7,26 @@ from django.conf import settings
 from django.core.mail import EmailMessage
 from django.utils import timezone
 from django.urls import reverse
+from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
+from django.utils.encoding import force_bytes
+from django.contrib.auth.tokens import default_token_generator
 from .models import Coordinator
 from .models import *
 import re
 
+
+
+def _send_verification_email(request, user: User) -> None:
+    uid = urlsafe_base64_encode(force_bytes(user.pk))
+    token = default_token_generator.make_token(user)
+    verify_url = request.build_absolute_uri(
+        reverse('verify-email', kwargs={'uidb64': uid, 'token': token})
+    )
+    subject = 'Verify your email - C.L.U.E'
+    body = f'Hi {user.first_name or user.username},\n\nPlease verify your email by clicking the link below:\n{verify_url}\n\nIf you did not request this, ignore this email.'
+    email_message = EmailMessage(subject, body, settings.DEFAULT_FROM_EMAIL, [user.email])
+    email_message.fail_silently = True
+    email_message.send()
 
 
 def RegisterView(request):
@@ -53,10 +69,30 @@ def RegisterView(request):
                 username=username,
                 password=password
             )
-            messages.success(request, "Account created successfully! You can now login.")
-            return redirect('login')
+            # Require email verification before login
+            new_user.is_active = False
+            new_user.save()
+            _send_verification_email(request, new_user)
+            return render(request, 'email_verification_sent.html', {'email': email})
 
     return render(request, 'signup_page.html')
+
+
+def VerifyEmail(request, uidb64: str, token: str):
+    try:
+        uid = urlsafe_base64_decode(uidb64).decode()
+        user = User.objects.get(pk=uid)
+    except Exception:
+        user = None
+
+    if user is not None and default_token_generator.check_token(user, token):
+        user.is_active = True
+        user.save(update_fields=["is_active"])
+        messages.success(request, "Email verified. You can now log in.")
+        return render(request, 'email_verified.html')
+    else:
+        messages.error(request, "Verification link is invalid or expired.")
+        return render(request, 'email_verified.html', {"error": True})
 
 def LoginView(request):
 
@@ -67,9 +103,18 @@ def LoginView(request):
         user = authenticate(request, username=username, password=password)
 
         if user is not None:
+            if not user.is_active:
+                messages.error(request, "Please verify your email before logging in.")
+                return redirect('login')
             login(request, user)
-
-            return redirect('profile') ### change 
+            # Remember-me: if checkbox not ticked, expire at browser close
+            remember_me = request.POST.get("remember_me")
+            if not remember_me:
+                request.session.set_expiry(0)
+            else:
+                # Two weeks
+                request.session.set_expiry(60 * 60 * 24 * 14)
+            return redirect('profile')  # change 
         
         else:
             messages.error(request, "Invalid login credentials")
@@ -274,10 +319,31 @@ def coordinator_dashboard(request):
 
         try:
             coordinator = Coordinator.objects.get(coordinator_name=coordinator_name)
-            if coordinator.coordinator_type == 'department':
-                return render(request, 'coordinator_dept_dashboard.html', {'coordinator_name': coordinator_name, 'email': email})
+            context = {'coordinator_name': coordinator_name, 'email': email}
+            from event.models import Event, Notice
+            from department.models import dEvent
+            from django.utils.timezone import now as tz_now
+
+            if coordinator.coordinator_type == 'department' and coordinator.department_name:
+                total_events = dEvent.objects.filter(department_name=coordinator.department_name).count()
+                upcoming_events = dEvent.objects.filter(department_name=coordinator.department_name, event_start_date__gte=tz_now()).count()
+                notices_count = Notice.objects.filter(department_name=coordinator.department_name).count()
+                context.update({
+                    'total_events': total_events,
+                    'upcoming_events': upcoming_events,
+                    'notices_count': notices_count,
+                })
+                return render(request, 'coordinator_dept_dashboard.html', context)
             else:
-                return render(request, 'coordinator_dashboard.html', {'coordinator_name': coordinator_name, 'email': email})
+                total_events = Event.objects.filter(club_name=coordinator.club_name).count() if coordinator.club_name else 0
+                upcoming_events = Event.objects.filter(club_name=coordinator.club_name, event_start_date__gte=tz_now()).count() if coordinator.club_name else 0
+                notices_count = Notice.objects.filter(club_name=coordinator.club_name).count() if coordinator.club_name else 0
+                context.update({
+                    'total_events': total_events,
+                    'upcoming_events': upcoming_events,
+                    'notices_count': notices_count,
+                })
+                return render(request, 'coordinator_dashboard.html', context)
         except Coordinator.DoesNotExist:
             return redirect('coordinator_login')  # Redirect if the coordinator doesn't exist
     

@@ -3,7 +3,7 @@ from datetime import date
 import calendar
 from django.utils.timezone import now
 from django.shortcuts import render
-from event.models import Event, Notice # Club Events Model
+from event.models import Event, Notice, Department, Club # Club Events Model
 from department.models import dEvent
 from datetime import date
 import calendar
@@ -99,6 +99,51 @@ def calendar_view(request):
     }
 
     return render(request, "calender.html", context)
+
+
+def search(request):
+    query = request.GET.get('q', '').strip()
+    date_str = request.GET.get('date', '').strip()
+    department = request.GET.get('department', '').strip()
+    event_type = request.GET.get('type', '').strip()  # 'club' or 'department'
+
+    club_events = Event.objects.all()
+    dept_events = dEvent.objects.all()
+
+    if query:
+        club_events = club_events.filter(event_name__icontains=query)
+        dept_events = dept_events.filter(event_name__icontains=query)
+
+    if date_str:
+        try:
+            from datetime import datetime
+            date = datetime.strptime(date_str, '%Y-%m-%d').date()
+            club_events = club_events.filter(event_start_date__lte=date, event_end_date__gte=date)
+            dept_events = dept_events.filter(event_start_date__lte=date, event_end_date__gte=date)
+        except ValueError:
+            pass
+
+    if department:
+        club_events = club_events.filter(department_name__department_name__iexact=department)
+        dept_events = dept_events.filter(department_name__department_name__iexact=department)
+
+    # Filter by type if requested
+    if event_type == 'club':
+        dept_events = dept_events.none()
+    elif event_type == 'department':
+        club_events = club_events.none()
+
+    departments = Department.objects.all().order_by('department_name')
+    context = {
+        'query': query,
+        'date': date_str,
+        'department': department,
+        'type': event_type,
+        'club_events': club_events.order_by('-event_start_date'),
+        'dept_events': dept_events.order_by('-event_start_date'),
+        'departments': departments,
+    }
+    return render(request, 'search_results.html', context)
 
 
 # def calendar_view(request):

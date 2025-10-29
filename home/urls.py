@@ -1,4 +1,4 @@
-from django.urls import path,include
+from django.urls import path, include
 from . import views
 
 urlpatterns = [
@@ -9,6 +9,8 @@ urlpatterns = [
     path('event/', views.event_page, name='event_page'),
     path('club_event/', views.club_event, name='club_event'),
     path('calendar/', views.calendar_view, name='calendar_view'),
-    path('search/', views.search, name='search'),
-]
 
+    # ✅ Keep both features (no loss from either branch)
+    path('search/', views.search, name='search'),  
+    path('admin-dashboard/', views.admin_dashboard, name='admin_dashboard'),
+]

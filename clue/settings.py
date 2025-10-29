@@ -1,9 +1,11 @@
+import sys
 from pathlib import Path
 import os
 import mimetypes
 import json
 from urllib.parse import urlparse
 from typing import List
+import pymysql
 
 # Ensure CSS served with correct mimetype
 mimetypes.add_type("text/css", ".css", True)
@@ -97,7 +99,6 @@ TEMPLATES = [
 WSGI_APPLICATION = "clue.wsgi.application"
 
 # ====== DATABASE ======
-import pymysql
 pymysql.install_as_MySQLdb()
 
 # Try reading from DATABASE_URL if provided
@@ -196,8 +197,7 @@ REST_FRAMEWORK = {
 }
 
 # ====== LOGGING ======
-LOG_DIR = os.path.join(BASE_DIR, "logs")
-os.makedirs(LOG_DIR, exist_ok=True)
+
 LOGGING = {
     "version": 1,
     "disable_existing_loggers": False,
@@ -205,17 +205,18 @@ LOGGING = {
         "verbose": {"format": "%(asctime)s [%(levelname)s] %(name)s: %(message)s"},
     },
     "handlers": {
-        "console": {"class": "logging.StreamHandler"},
-        "file": {
-            "class": "logging.handlers.RotatingFileHandler",
-            "filename": os.path.join(LOG_DIR, "django.log"),
-            "maxBytes": 5 * 1024 * 1024,
-            "backupCount": 3,
+        "console": {
+            "class": "logging.StreamHandler",
+            "stream": sys.stdout,
             "formatter": "verbose",
         },
     },
-    "root": {"handlers": ["console", "file"], "level": "DEBUG" if DEBUG else "INFO"},
+    "root": {
+        "handlers": ["console"],
+        "level": "DEBUG" if DEBUG else "INFO",
+    },
 }
+
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 LOGIN_URL = "login"

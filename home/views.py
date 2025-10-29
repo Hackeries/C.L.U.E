@@ -1,9 +1,10 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from datetime import date
 import calendar
 from django.utils.timezone import now
-from django.shortcuts import render
-from event.models import Event, Notice # Club Events Model
+from django.contrib.auth.decorators import login_required, user_passes_test
+from django.contrib.auth.models import User
+from event.models import Event, Notice, Department, Club # Club Events Model
 from department.models import dEvent
 from datetime import date
 import calendar
@@ -161,4 +162,36 @@ def calendar_view(request):
 #     }
 
 #     return render(request, "calender.html", context)
+
+
+@login_required
+@user_passes_test(lambda u: u.is_staff)
+def admin_dashboard(request):
+    today = now().date()
+    total_users = User.objects.count()
+    total_departments = Department.objects.count()
+    total_clubs = Club.objects.count()
+    total_events = Event.objects.count() + dEvent.objects.count()
+    upcoming_events = (
+        Event.objects.filter(event_start_date__gte=today).count()
+        + dEvent.objects.filter(event_start_date__gte=today).count()
+    )
+
+    dept_counts = []
+    for dept in Department.objects.all().order_by("department_name"):
+        count = (
+            Event.objects.filter(department_name=dept).count()
+            + dEvent.objects.filter(department_name=dept).count()
+        )
+        dept_counts.append({"name": dept.department_name, "count": count})
+
+    context = {
+        "total_users": total_users,
+        "total_departments": total_departments,
+        "total_clubs": total_clubs,
+        "total_events": total_events,
+        "upcoming_events": upcoming_events,
+        "dept_counts": dept_counts,
+    }
+    return render(request, "admin_dashboard.html", context)
 

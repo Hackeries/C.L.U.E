@@ -14,6 +14,16 @@ from pathlib import Path
 import mimetypes
 mimetypes.add_type("text/css", ".css", True)
 import os
+import json
+from urllib.parse import urlparse
+
+# Load environment variables from a .env file if present
+try:
+    from dotenv import load_dotenv
+    load_dotenv()
+except Exception:
+    # dotenv is optional in production (env vars typically provided by platform)
+    pass
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -23,23 +33,42 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = "django-insecure-s9%e8df1qmz3-#5oeo$d)6+s&436@zg4+h-2f(_%&s34z8(7@m"
+SECRET_KEY = os.environ.get("SECRET_KEY", "django-insecure-development-key")
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = os.environ.get("DEBUG", "True").lower() in {"1", "true", "yes", "on"}
 
-ALLOWED_HOSTS = ['*']
+def _csv_env(name: str, default: list[str] | None = None) -> list[str]:
+    raw = os.environ.get(name)
+    if not raw:
+        return default or []
+    # allow JSON array or comma-separated values
+    try:
+        parsed = json.loads(raw)
+        if isinstance(parsed, list):
+            return [str(x).strip() for x in parsed]
+    except Exception:
+        pass
+    return [x.strip() for x in raw.split(",") if x.strip()]
+
+ALLOWED_HOSTS = _csv_env("ALLOWED_HOSTS", ["*"]) if DEBUG else _csv_env("ALLOWED_HOSTS", [])
+CSRF_TRUSTED_ORIGINS = _csv_env("CSRF_TRUSTED_ORIGINS", [])
 
 
 # Application definition
 
 INSTALLED_APPS = [
+    # Third-party first to ensure proper discovery
+    "whitenoise.runserver_nostatic",
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    # APIs
+    "rest_framework",
+    # Local apps
     "signup",
     "home",
     "event",
@@ -49,6 +78,8 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
+    # Whitenoise for serving static files
+    "whitenoise.middleware.WhiteNoiseMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
@@ -56,6 +87,15 @@ MIDDLEWARE = [
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
+
+# Optionally enable CORS if the package is available
+try:  # noqa: SIM105
+    import corsheaders  # type: ignore  # pylint: disable=unused-import
+    INSTALLED_APPS.append("corsheaders")
+    # CORS should be as high as possible
+    MIDDLEWARE.insert(2, "corsheaders.middleware.CorsMiddleware")
+except Exception:
+    pass
 
 ROOT_URLCONF = "clue.urls"
 
@@ -80,22 +120,42 @@ WSGI_APPLICATION = "clue.wsgi.application"
 
 
 # Database
-# https://docs.djangoproject.com/en/5.1/ref/settings/#databases
+# DATABASE_URL can be in formats like:
+#   postgres://USER:PASS@HOST:PORT/NAME
+#   mysql://USER:PASS@HOST:PORT/NAME
+# If not provided, fallback to SQLite for local development
+
+def _database_from_url(url: str | None):
+    if not url:
+        return {
+            "ENGINE": "django.db.backends.sqlite3",
+            "NAME": BASE_DIR / "db.sqlite3",
+        }
+    parsed = urlparse(url)
+    scheme = parsed.scheme.split("+")[0]
+    engine_map = {
+        "postgres": "django.db.backends.postgresql",
+        "postgresql": "django.db.backends.postgresql",
+        "pgsql": "django.db.backends.postgresql",
+        "mysql": "django.db.backends.mysql",
+        "sqlite": "django.db.backends.sqlite3",
+    }
+    engine = engine_map.get(scheme)
+    if not engine:
+        raise ValueError(f"Unsupported database scheme: {scheme}")
+    if engine.endswith("sqlite3"):
+        return {"ENGINE": engine, "NAME": parsed.path.lstrip("/") or (BASE_DIR / "db.sqlite3")}
+    return {
+        "ENGINE": engine,
+        "NAME": parsed.path.lstrip("/"),
+        "USER": parsed.username or "",
+        "PASSWORD": parsed.password or "",
+        "HOST": parsed.hostname or "",
+        "PORT": str(parsed.port or ""),
+    }
 
 DATABASES = {
-    "default": {
-        #"ENGINE": "django.db.backends.sqlite3",   #initially this was mentioned 1st and 2nd line 
-        #"NAME": BASE_DIR / "db.sqlite3",
-        'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'cluedb',
-        'USER': 'root',
-        'PASSWORD': 'root@1234',
-        'HOST': 'localhost',  # Change if your database is hosted elsewhere
-        'PORT': '3306',  # Default MySQL port
-         'OPTIONS': { # i addeed thes two lines 
-            'init_command': "SET sql_mode='STRICT_TRANS_TABLES'"
-             }
-    }
+    "default": _database_from_url(os.environ.get("DATABASE_URL"))
 }
 
 CACHES = {
@@ -140,9 +200,12 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.1/howto/static-files/
 
-STATIC_URL = '/static/'
-STATIC_ROOT = os.path.join(BASE_DIR,  'staticfiles')
-STATICFILES_DIRS = (os.path.join(BASE_DIR, 'static'), )
+STATIC_URL = "/static/"
+STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
+STATICFILES_DIRS = (os.path.join(BASE_DIR, "static"),)
+
+# Whitenoise settings for efficient static files in production
+STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
  
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
@@ -150,15 +213,66 @@ STATICFILES_DIRS = (os.path.join(BASE_DIR, 'static'), )
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 
-LOGIN_URL = 'login'
+LOGIN_URL = "login"
 
-EMAIL_HOST="smtp.gmail.com"
-EMAIL_PORT=465
-EMAIL_USE_SSL=True
-EMAIL_HOST_USER="akankshagaur1407@gmail.com"
-EMAIL_HOST_PASSWORD="adfz yytc bjss zlfd"
+# Email configuration (defaults suitable for local dev)
+EMAIL_BACKEND = os.environ.get("EMAIL_BACKEND", "django.core.mail.backends.smtp.EmailBackend")
+EMAIL_HOST = os.environ.get("EMAIL_HOST", "smtp.gmail.com")
+EMAIL_PORT = int(os.environ.get("EMAIL_PORT", "587"))
+EMAIL_USE_TLS = os.environ.get("EMAIL_USE_TLS", "True").lower() in {"1", "true", "yes", "on"}
+EMAIL_USE_SSL = os.environ.get("EMAIL_USE_SSL", "False").lower() in {"1", "true", "yes", "on"}
+EMAIL_HOST_USER = os.environ.get("EMAIL_HOST_USER", "")
+EMAIL_HOST_PASSWORD = os.environ.get("EMAIL_HOST_PASSWORD", "")
+DEFAULT_FROM_EMAIL = os.environ.get("DEFAULT_FROM_EMAIL", EMAIL_HOST_USER or "webmaster@localhost")
 
 
 
-MEDIA_URL = '/media/'
-MEDIA_ROOT = os.path.join(BASE_DIR,  'static','media')
+MEDIA_URL = "/media/"
+MEDIA_ROOT = os.path.join(BASE_DIR, "static", "media")
+
+# Django REST Framework baseline settings
+REST_FRAMEWORK = {
+    "DEFAULT_AUTHENTICATION_CLASSES": (
+        "rest_framework.authentication.SessionAuthentication",
+        # JWT can be added later: 'rest_framework_simplejwt.authentication.JWTAuthentication',
+    ),
+    "DEFAULT_PERMISSION_CLASSES": (
+        "rest_framework.permissions.AllowAny" if DEBUG else "rest_framework.permissions.IsAuthenticated",
+    ),
+}
+
+# CORS configuration
+CORS_ALLOW_ALL_ORIGINS = DEBUG
+CORS_ALLOWED_ORIGINS = _csv_env("CORS_ALLOWED_ORIGINS", [])
+CORS_ALLOW_CREDENTIALS = True
+
+# Security settings for production
+SESSION_COOKIE_SECURE = not DEBUG
+CSRF_COOKIE_SECURE = not DEBUG
+SECURE_BROWSER_XSS_FILTER = True
+SECURE_CONTENT_TYPE_NOSNIFF = True
+SECURE_HSTS_INCLUDE_SUBDOMAINS = os.environ.get("SECURE_HSTS_INCLUDE_SUBDOMAINS", "False").lower() in {"1", "true", "yes", "on"}
+SECURE_HSTS_SECONDS = int(os.environ.get("SECURE_HSTS_SECONDS", "0" if DEBUG else "31536000"))
+SECURE_SSL_REDIRECT = os.environ.get("SECURE_SSL_REDIRECT", "False" if DEBUG else "True").lower() in {"1", "true", "yes", "on"}
+
+# Logging configuration with rotating file handler in production
+LOG_LEVEL = os.environ.get("LOG_LEVEL", "DEBUG" if DEBUG else "INFO")
+LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": False,
+    "formatters": {
+        "verbose": {
+            "format": "%(asctime)s [%(levelname)s] %(name)s: %(message)s",
+        },
+    },
+    "handlers": {
+        "console": {
+            "class": "logging.StreamHandler",
+            "formatter": "verbose",
+        },
+    },
+    "root": {"handlers": ["console"], "level": LOG_LEVEL},
+}
+
+# Session settings (Remember Me configurable via view; default 2 weeks here)
+SESSION_COOKIE_AGE = int(os.environ.get("SESSION_COOKIE_AGE", str(60 * 60 * 24 * 14)))

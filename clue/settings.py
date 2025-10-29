@@ -38,7 +38,12 @@ def _csv_env(name: str, default=None):
         pass
     return [x.strip() for x in raw.split(",") if x.strip()]
 
-ALLOWED_HOSTS = _csv_env("ALLOWED_HOSTS", ["*"] if DEBUG else [])
+ALLOWED_HOSTS = [
+    '127.0.0.1',
+    'localhost',
+    '.vercel.app',
+    os.environ.get('VERCEL_URL', ''),
+]
 CSRF_TRUSTED_ORIGINS = _csv_env("CSRF_TRUSTED_ORIGINS", [])
 
 # ====== APPLICATION ======

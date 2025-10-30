@@ -1,115 +1,61 @@
-# C.L.U.E Frontend - React + TypeScript + Vite
+# C.L.U.E Frontend - Banasthali Vidyapith
 
-Modern, responsive frontend for the C.L.U.E (College Link Up for Events) event management system.
+Modern, responsive React + TypeScript frontend for the College Link Up for Events (C.L.U.E) platform at Banasthali Vidyapith.
 
-## Tech Stack
+## 🚀 Features
 
-- **Framework:** React 18 + TypeScript
-- **Build Tool:** Vite
-- **Styling:** TailwindCSS
-- **UI Components:** ShadCN/UI (Radix UI)
-- **Animations:** Framer Motion
-- **State Management:** TanStack Query (React Query)
-- **Backend:** Supabase (Auth + Database + Storage + Realtime)
-- **API Client:** Axios
-- **Charts:** Recharts
-- **Forms:** React Hook Form + Zod
-- **Notifications:** Sonner
-- **Reports:** jsPDF + xlsx
+- **Modern UI**: Built with React 19, TypeScript, and Tailwind CSS
+- **Smooth Animations**: Framer Motion for beautiful page transitions
+- **Responsive Design**: Works perfectly on all devices
+- **Component Library**: Radix UI components for accessibility
+- **Type Safety**: Full TypeScript support
+- **State Management**: React Query for server state
+- **Routing**: React Router for navigation
+- **Form Handling**: React Hook Form with Zod validation
 
-## Features
+## 📦 Tech Stack
 
-### ✨ Core Features
+- **React 19** - UI library
+- **TypeScript** - Type safety
+- **Vite** - Build tool
+- **Tailwind CSS** - Styling
+- **Framer Motion** - Animations
+- **React Router** - Routing
+- **React Query** - Data fetching
+- **Axios** - HTTP client
+- **Radix UI** - UI components
+- **Lucide Icons** - Icon library
 
-- **Real-Time Notifications** - Instant updates using Supabase Realtime
-- **Event Management** - Full CRUD operations for events
-- **Photo Gallery** - Image upload and management with Supabase Storage
-- **Report Generation** - Export event reports as PDF or Excel
-- **Analytics Dashboard** - Visual event statistics and insights
-- **Department Management** - Organize events by departments
-- **Dark/Light Mode** - Theme toggle with system preference detection
-- **Responsive Design** - Mobile-first, works on all devices
-
-### 🎨 Design Features
-
-- Modern, minimal UI with TailwindCSS
-- Smooth animations with Framer Motion
-- Accessible components (WCAG compliant)
-- Toast notifications for user feedback
-- Loading states and error handling
-
-## Project Structure
-
-```
-frontend/
-├── src/
-│   ├── components/
-│   │   ├── ui/              # Base UI components (ShadCN)
-│   │   ├── admin/           # Admin dashboard components
-│   │   ├── gallery/         # Photo gallery components
-│   │   ├── reports/         # Report generation components
-│   │   └── notifications/   # Real-time notification components
-│   ├── hooks/               # Custom React hooks
-│   │   ├── useAuth.ts       # Authentication hook
-│   │   └── useRealtime.ts   # Realtime subscription hook
-│   ├── lib/                 # Utilities and configurations
-│   │   ├── supabase.ts      # Supabase client setup
-│   │   └── utils.ts         # Helper functions
-│   ├── services/            # API service layer
-│   │   └── api.ts           # Django REST API client
-│   ├── types/               # TypeScript type definitions
-│   │   └── index.ts         # Shared types
-│   ├── App.tsx              # Main application component
-│   ├── main.tsx             # Application entry point
-│   └── index.css            # Global styles
-├── public/                  # Static assets
-├── .env.example             # Environment variables template
-├── package.json             # Dependencies
-├── tailwind.config.js       # TailwindCSS configuration
-├── tsconfig.json            # TypeScript configuration
-└── vite.config.ts           # Vite configuration
-```
-
-## Getting Started
-
-### Prerequisites
-
-- Node.js 18+ and npm
-- Supabase project (see [SUPABASE_SETUP_GUIDE.md](../SUPABASE_SETUP_GUIDE.md))
-- Django backend running (see main README)
-
-### Installation
+## 🛠️ Installation
 
 1. **Install dependencies:**
+   ```bash
+   npm install
+   ```
 
-```bash
-npm install
-```
+2. **Create environment file:**
+   ```bash
+   cp .env.example .env
+   ```
 
-2. **Configure environment variables:**
+3. **Update the `.env` file with your API URL:**
+   ```env
+   VITE_API_URL=http://localhost:8000/api
+   ```
 
-```bash
-cp .env.example .env
-```
+## 🏃‍♂️ Development
 
-Edit `.env`:
-
-```bash
-VITE_SUPABASE_URL=https://xxxxx.supabase.co
-VITE_SUPABASE_ANON_KEY=your-supabase-anon-key
-VITE_API_URL=http://localhost:8000/api
-VITE_APP_NAME=C.L.U.E
-```
-
-3. **Start development server:**
+Start the development server:
 
 ```bash
 npm run dev
 ```
 
-Visit http://localhost:5173
+The app will be available at `http://localhost:5173`
 
-### Build for Production
+## 🏗️ Build
+
+Build for production:
 
 ```bash
 npm run build
@@ -121,256 +67,74 @@ Preview production build:
 npm run preview
 ```
 
-## Available Scripts
+## 📁 Project Structure
 
-- `npm run dev` - Start development server
-- `npm run build` - Build for production
-- `npm run preview` - Preview production build
-- `npm run lint` - Run ESLint
-
-## Environment Variables
-
-| Variable | Description | Required |
-|----------|-------------|----------|
-| `VITE_SUPABASE_URL` | Your Supabase project URL | Yes |
-| `VITE_SUPABASE_ANON_KEY` | Supabase anonymous key | Yes |
-| `VITE_API_URL` | Django backend API URL | Yes |
-| `VITE_APP_NAME` | Application name | No |
-| `VITE_APP_ENV` | Environment (development/production) | No |
-
-## Key Components
-
-### Admin Dashboard
-
-Full-featured admin interface for managing events, departments, and viewing analytics.
-
-```typescript
-import { AdminDashboard } from './components/admin/AdminDashboard'
-
-<AdminDashboard />
+```
+src/
+├── components/         # Reusable components
+│   ├── layout/        # Layout components (Header, Footer)
+│   ├── ui/            # UI components (Button, Card, etc.)
+│   ├── admin/         # Admin-specific components
+│   └── ...
+├── pages/             # Page components
+│   ├── Home.tsx
+│   ├── Clubs.tsx
+│   ├── Events.tsx
+│   └── ...
+├── services/          # API services
+│   └── api.ts
+├── hooks/             # Custom hooks
+├── lib/               # Utility functions
+├── types/             # TypeScript types
+└── App.tsx            # Main app component
 ```
 
-### Event Gallery
+## 🎨 Customization
 
-Image gallery with upload, view, and delete capabilities using Supabase Storage.
+### Colors
 
-```typescript
-import { EventGallery } from './components/gallery/EventGallery'
+The color scheme is defined in `tailwind.config.js`. Main colors:
+- Primary: `#132E57` (Navy Blue)
+- Accent: Green to Blue gradient
+- Background: Gray-50
 
-<EventGallery 
-  eventId={1} 
-  eventName="Tech Fest 2024" 
-  isAdmin={true} 
-/>
-```
+### Fonts
 
-### Report Generator
+- **Body**: Inter
+- **Headings**: Poppins
 
-Generate and download event reports in PDF or Excel format.
+## 📱 Pages
 
-```typescript
-import { ReportGenerator } from './components/reports/ReportGenerator'
+- **Home** - Landing page with hero slideshow and latest updates
+- **Clubs** - Browse and explore campus clubs
+- **Departments** - View department information
+- **Events** - Browse and register for events
+- **Calendar** - View events in calendar format
+- **Profile** - User profile and registered events
+- **Login/Signup** - Authentication pages
+- **Admin Dashboard** - Admin management interface
+- **Coordinator Dashboard** - Coordinator event management
 
-<ReportGenerator 
-  event={eventData} 
-  participants={participantsList}
-  stats={eventStats}
-/>
-```
+## 🔧 Environment Variables
 
-### Real-time Notifications
+| Variable | Description | Default |
+|----------|-------------|---------|
+| `VITE_API_URL` | Backend API URL | `http://localhost:8000/api` |
+| `VITE_SUPABASE_URL` | Supabase URL (optional) | - |
+| `VITE_SUPABASE_ANON_KEY` | Supabase anon key (optional) | - |
 
-Live notification system with toast messages for event updates.
+## 🤝 Contributing
 
-```typescript
-import { RealtimeNotifications } from './components/notifications/RealtimeNotifications'
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push to the branch (`git push origin feature/AmazingFeature`)
+5. Open a Pull Request
 
-<RealtimeNotifications />
-```
+## 📄 License
 
-## Custom Hooks
+This project is part of Banasthali Vidyapith's C.L.U.E platform.
 
-### useAuth
+## 📧 Contact
 
-Authentication hook for managing user state.
-
-```typescript
-import { useAuth } from './hooks/useAuth'
-
-const { user, loading, isAuthenticated } = useAuth()
-```
-
-### useRealtime
-
-Subscribe to real-time database changes.
-
-```typescript
-import { useRealtime } from './hooks/useRealtime'
-
-const { events } = useRealtime('events', (event) => {
-  console.log('Event changed:', event)
-})
-```
-
-## Styling
-
-### TailwindCSS
-
-This project uses TailwindCSS with a custom theme supporting dark mode.
-
-**Theme colors:**
-- Primary: Blue (`#3b82f6`)
-- Secondary: Purple (`#8b5cf6`)
-- Accent: Pink (`#ec4899`)
-
-### Dark Mode
-
-Toggle between light and dark themes:
-
-```typescript
-import { useTheme } from './components/ThemeProvider'
-
-const { theme, setTheme } = useTheme()
-setTheme('dark') // or 'light' or 'system'
-```
-
-## API Integration
-
-### Using the API Service
-
-```typescript
-import { getEvents, createEvent } from './services/api'
-
-// Fetch events
-const events = await getEvents()
-
-// Create event
-const formData = new FormData()
-formData.append('event_name', 'Tech Fest')
-formData.append('event_venue', 'Main Auditorium')
-await createEvent(formData)
-```
-
-## Supabase Integration
-
-### Authentication
-
-```typescript
-import { signIn, signUp, signOut } from './lib/supabase'
-
-// Sign in
-await signIn('user@example.com', 'password')
-
-// Sign up
-await signUp('user@example.com', 'password', { role: 'student' })
-
-// Sign out
-await signOut()
-```
-
-### Storage
-
-```typescript
-import { uploadFile, getPublicUrl, deleteFile } from './lib/supabase'
-
-// Upload file
-const { data, error } = await uploadFile('event-gallery', 'path/to/file.jpg', file)
-
-// Get public URL
-const url = getPublicUrl('event-gallery', 'path/to/file.jpg')
-
-// Delete file
-await deleteFile('event-gallery', 'path/to/file.jpg')
-```
-
-## Testing
-
-### Component Testing
-
-```bash
-npm install -D vitest @testing-library/react @testing-library/jest-dom
-npm run test
-```
-
-### E2E Testing
-
-```bash
-npm install -D playwright
-npx playwright test
-```
-
-## Performance Optimization
-
-- **Code Splitting:** Automatic with Vite
-- **Lazy Loading:** Images loaded on demand
-- **Caching:** React Query handles API caching
-- **Bundle Size:** Optimized with tree-shaking
-
-## Accessibility
-
-- Semantic HTML
-- ARIA labels and roles
-- Keyboard navigation
-- Screen reader support
-- Color contrast compliance
-
-## Browser Support
-
-- Chrome/Edge (last 2 versions)
-- Firefox (last 2 versions)
-- Safari (last 2 versions)
-- Mobile browsers
-
-## Troubleshooting
-
-### Common Issues
-
-**Issue:** Supabase connection fails
-- **Solution:** Check `.env` file has correct credentials
-- Verify Supabase project is active
-
-**Issue:** API requests fail with CORS error
-- **Solution:** Ensure Django backend has correct CORS configuration
-- Add frontend URL to `CORS_ALLOWED_ORIGINS`
-
-**Issue:** Images not loading
-- **Solution:** Check Supabase Storage bucket policies
-- Verify bucket is public or user is authenticated
-
-**Issue:** Dark mode not working
-- **Solution:** Clear localStorage and refresh
-- Check if theme classes are applied to `<html>` element
-
-## Contributing
-
-1. Create a feature branch
-2. Make your changes
-3. Test thoroughly
-4. Submit a pull request
-
-## Deployment
-
-See [DEPLOYMENT_GUIDE.md](../DEPLOYMENT_GUIDE.md) for production deployment instructions.
-
-### Quick Deploy to Vercel
-
-```bash
-npm install -g vercel
-vercel --prod
-```
-
-## License
-
-MIT License - see LICENSE file for details
-
-## Support
-
-For issues and questions:
-- Check the documentation
-- Review console errors
-- Check Supabase dashboard
-- Contact the development team
-
----
-
-Built with ❤️ using React, TypeScript, and Supabase
+For questions or support, contact: clue@banasthali.in

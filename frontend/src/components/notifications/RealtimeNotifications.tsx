@@ -1,10 +1,9 @@
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Bell, X, Calendar, AlertCircle, Info } from 'lucide-react'
 import { Button } from '../ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/card'
 import { useRealtime } from '../../hooks/useRealtime'
-import { toast } from 'sonner'
 import { formatDateTime } from '../../lib/utils'
 
 interface Notification {
@@ -21,7 +20,7 @@ export const RealtimeNotifications = () => {
   const [showPanel, setShowPanel] = useState(false)
   
   // Listen for event changes
-  const { events: eventChanges } = useRealtime('events', (event) => {
+  useRealtime('events', (event) => {
     if (event.type === 'INSERT' && event.new) {
       addNotification({
         id: Date.now().toString(),
@@ -44,7 +43,7 @@ export const RealtimeNotifications = () => {
   })
 
   // Listen for notice changes
-  const { events: noticeChanges } = useRealtime('notices', (event) => {
+  useRealtime('notices', (event) => {
     if (event.type === 'INSERT' && event.new) {
       addNotification({
         id: Date.now().toString(),

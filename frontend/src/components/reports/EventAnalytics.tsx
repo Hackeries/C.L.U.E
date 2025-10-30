@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { BarChart, Bar, LineChart, Line, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts'
+import { BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/card'
 import { getEventStats } from '../../services/api'
 import { Loader2, TrendingUp, Calendar, Users, Award } from 'lucide-react'
@@ -107,7 +107,7 @@ export const EventAnalytics = () => {
                   outerRadius={80}
                   label
                 >
-                  {stats.events_by_department.map((entry, index) => (
+                  {stats.events_by_department.map((_entry, index) => (
                     <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                   ))}
                 </Pie>

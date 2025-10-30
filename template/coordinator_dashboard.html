@@ -3,159 +3,193 @@
 
 {% block content %}
 
-<!-- Page Content -->
-<div class="pt-20">
-    {% if request.session.coordinator_name %}
-        <div class="flex h-screen mt-16">
-            <!-- Sidebar -->
-            <aside class="w-1/4 bg-white h-full p-6 shadow-lg hidden sm:block">
-                <nav class="space-y-4 mt-8">
-                    <a href="{% url 'coordinator_dashboard' %}" class="block text-gray-800 font-medium hover:text-blue-600 transition">Dashboard</a>
-                    <a href="{% url 'eventspage1' %}" class="block text-gray-800 font-medium hover:text-blue-600 transition">Events</a>
-                    <a href="{% url 'notices' %}" class="block text-gray-800 font-medium hover:text-blue-600 transition">Notice</a>
-                    <a href="{% url 'logout' %}" class="block text-gray-800 font-medium hover:text-red-600 transition">Logout</a>
-                </nav>
-            </aside>
-            <!-- Main Content -->
-            <main class="flex-1 p-10">
-                <!-- Header -->
-                <div class="bg-white rounded-lg shadow p-6 flex items-center justify-between mb-8">
-                    <div class="flex items-center">
-                        <div class="w-24 h-24 bg-gray-200 rounded-full flex items-center justify-center text-gray-500 shadow-md">
-                            <div class="w-30 h-24 rounded-full overflow-hidden shadow-md">
-                                <img src="{% static 'img/Banasthali_Vidyapeeth_Logo.png' %}" alt="Profile Photo" class="w-full h-full object-cover">
-                            </div>
+{% if request.session.coordinator_name %}
+<div class="min-h-screen bg-gray-50">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        
+        <!-- Welcome Header -->
+        <div class="bg-gradient-to-r from-[#132E57] to-[#1e4d8b] rounded-2xl shadow-xl p-8 mb-8" data-aos="fade-down">
+            <div class="flex flex-col md:flex-row items-center justify-between">
+                <div class="flex items-center space-x-6 mb-6 md:mb-0">
+                    <div class="relative">
+                        <div class="w-24 h-24 rounded-full overflow-hidden ring-4 ring-white shadow-lg">
+                            <img src="{% static 'img/Banasthali_Vidyapeeth_Logo.png' %}" 
+                                 alt="Profile" 
+                                 class="w-full h-full object-cover">
                         </div>
-                        <div class="ml-6">
-                            <h2 class="text-xl font-semibold text-gray-800">{{ coordinator_name }}</h2>
-                            {% if coordinator.email %}
-                                <p class="text-sm text-gray-600">{{ coordinator.email }}</p>
-                            {% else %}
-                                <p class="text-sm text-red-500">Email not provided</p>
-                            {% endif %}
-                            
-                        </div>
+                        <div class="absolute -bottom-1 -right-1 w-8 h-8 bg-green-400 rounded-full border-4 border-white"></div>
                     </div>
-                </div>
-
-                <!-- Stats -->
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-                    <div class="bg-white rounded-lg shadow p-6 text-center">
-                        <div class="text-gray-500 text-sm">Total Events</div>
-                        <div class="text-3xl font-bold">{{ total_events|default:0 }}</div>
-                    </div>
-                    <div class="bg-white rounded-lg shadow p-6 text-center">
-                        <div class="text-gray-500 text-sm">Upcoming</div>
-                        <div class="text-3xl font-bold">{{ upcoming_events|default:0 }}</div>
-                    </div>
-                    <div class="bg-white rounded-lg shadow p-6 text-center">
-                        <div class="text-gray-500 text-sm">Notices</div>
-                        <div class="text-3xl font-bold">{{ notices_count|default:0 }}</div>
-                    </div>
-                </div>
-
-                <!-- Actions -->
-                <div class="grid grid-cols-2 gap-6">
-                    <button class="w-full py-4 bg-blue-600 text-white font-medium rounded-lg shadow hover:bg-blue-700 transition" 
-                         onclick="window.location.href='{% url 'create_event' %}'">
-                         Create Event
-                    </button>
-                    <a href="{% url 'logout' %}" class="w-full py-4 bg-red-600 text-white font-medium rounded-lg shadow hover:bg-red-700 transition text-center">
-                        Logout
-                    </a>
-                </div>
-            </main>
-        </div> <!-- Closing the correct `div` -->
-
-    {% else %}
-        <p class="text-red-500 text-center text-lg">Unauthorized Access. Please <a href="{% url 'login' %}" class="text-blue-600">login</a>.</p>
-    {% endif %}
-</div>
-
-<script>
-    function handleMenu() {
-        const navDialog = document.getElementById('nav-dialog');
-        navDialog.classList.toggle('hidden');
-    }
-</script>
-
-{% endblock %}
-
-
-
-
-
-
-
-
-{% comment %} {% extends 'nav.html' %}  <!-- Extending nav_coor.html -->
- <!-- Coordinator dashboard for club admin -->
-{% load static %}
-
-{% block content %}
-
-           <!-- Page Content -->
-    <div class="pt-20">
-        {% if request.session.coordinator_name %}
-            <div class="flex h-screen mt-16">
-                <!-- Sidebar -->
-                <aside class="w-1/4 bg-white h-full p-6 shadow-lg hidden sm:block">
-                    <nav class="space-y-4 mt-8">
-                        <a href="{% url 'coordinator_dashboard' %}" class="block text-gray-800 font-medium hover:text-blue-600 transition">Dashboard</a>
-                        <a href="{% url 'eventspage1' %}" class="block text-gray-800 font-medium hover:text-blue-600 transition">Events</a>
-                        <a href="{% url 'notices' %}" class="block text-gray-800 font-medium hover:text-blue-600 transition">Notice</a>
-                        <a href="{% url 'logout' %}" class="block text-gray-800 font-medium hover:text-red-600 transition">Logout</a>
-                    </nav>
-                </aside>
-                <!-- Main Content -->
-                <main class="flex-1 p-10">
-                    {% endif %}
-
-
-
-            <!-- Header -->
-            <div class="bg-white rounded-lg shadow p-6 flex items-center justify-between mb-8">
-                <!-- Profile Section -->
-                <div class="flex items-center">
-                    <div class="w-24 h-24 bg-gray-200 rounded-full flex items-center justify-center text-gray-500 shadow-md">
-                        <div class="w-30 h-24 rounded-full overflow-hidden shadow-md">
-                            <img src="{% static 'img/Banasthali_Vidyapeeth_Logo.png' %}" alt="Profile Photo" class="w-full h-full object-cover">
-                        </div>
-                    </div>
-                    <div class="ml-6">
-                        <h2 class="text-xl font-semibold text-gray-800">{{ coordinator_name }}</h2>
-                        {% if request.email %}
-                            <p class="text-sm text-gray-600">{{ email }}</p>
+                    <div class="text-white">
+                        <h1 class="text-3xl font-bold font-display mb-1">Welcome back, {{ coordinator_name }}!</h1>
+                        {% if coordinator.email %}
+                            <p class="text-blue-100 flex items-center space-x-2">
+                                <i data-lucide="mail" class="w-4 h-4"></i>
+                                <span>{{ coordinator.email }}</span>
+                            </p>
                         {% else %}
-                            <p class="text-sm text-red-500">Email not provided</p>
+                            <p class="text-yellow-300 flex items-center space-x-2">
+                                <i data-lucide="alert-circle" class="w-4 h-4"></i>
+                                <span>Email not provided</span>
+                            </p>
                         {% endif %}
                     </div>
                 </div>
+                <div class="flex space-x-3">
+                    <a href="{% url 'create_event' %}" 
+                       class="inline-flex items-center space-x-2 bg-white text-[#132E57] hover:bg-gray-100 px-6 py-3 rounded-lg font-semibold shadow-lg transition-all duration-200">
+                        <i data-lucide="plus-circle" class="w-5 h-5"></i>
+                        <span>Create Event</span>
+                    </a>
+                </div>
             </div>
-
-            <!-- Action Buttons -->
-            <div class="grid grid-cols-2 gap-6">
-                <button class="w-full py-4 bg-blue-600 text-white font-medium rounded-lg shadow hover:bg-blue-700 transition" 
-                     onclick="window.location.href='{% url 'create_event' %}'">
-                     Create Event
-                </button>
-                <a href="{% url 'logout' %}" class="w-full py-4 bg-red-600 text-white font-medium rounded-lg shadow hover:bg-red-700 transition text-center">
-                    Logout
+        </div>
+        
+        <!-- Stats Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+            
+            <!-- Total Events Card -->
+            <div class="bg-white rounded-2xl shadow-lg p-6 hover:shadow-xl transition-shadow duration-300" data-aos="fade-up" data-aos-delay="100">
+                <div class="flex items-center justify-between mb-4">
+                    <div class="w-14 h-14 rounded-xl bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center shadow-lg">
+                        <i data-lucide="calendar" class="w-7 h-7 text-white"></i>
+                    </div>
+                    <div class="text-right">
+                        <p class="text-sm text-gray-500 font-medium">Total Events</p>
+                        <p class="text-4xl font-bold text-gray-900">{{ total_events|default:0 }}</p>
+                    </div>
+                </div>
+                <div class="mt-4 pt-4 border-t border-gray-100">
+                    <a href="{% url 'eventspage1' %}" class="text-blue-600 hover:text-blue-700 font-medium text-sm flex items-center space-x-1">
+                        <span>View all events</span>
+                        <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                    </a>
+                </div>
+            </div>
+            
+            <!-- Upcoming Events Card -->
+            <div class="bg-white rounded-2xl shadow-lg p-6 hover:shadow-xl transition-shadow duration-300" data-aos="fade-up" data-aos-delay="200">
+                <div class="flex items-center justify-between mb-4">
+                    <div class="w-14 h-14 rounded-xl bg-gradient-to-br from-green-500 to-green-600 flex items-center justify-center shadow-lg">
+                        <i data-lucide="clock" class="w-7 h-7 text-white"></i>
+                    </div>
+                    <div class="text-right">
+                        <p class="text-sm text-gray-500 font-medium">Upcoming</p>
+                        <p class="text-4xl font-bold text-gray-900">{{ upcoming_events|default:0 }}</p>
+                    </div>
+                </div>
+                <div class="mt-4 pt-4 border-t border-gray-100">
+                    <p class="text-gray-600 text-sm flex items-center space-x-1">
+                        <i data-lucide="trending-up" class="w-4 h-4"></i>
+                        <span>Scheduled events</span>
+                    </p>
+                </div>
+            </div>
+            
+            <!-- Notices Card -->
+            <div class="bg-white rounded-2xl shadow-lg p-6 hover:shadow-xl transition-shadow duration-300" data-aos="fade-up" data-aos-delay="300">
+                <div class="flex items-center justify-between mb-4">
+                    <div class="w-14 h-14 rounded-xl bg-gradient-to-br from-purple-500 to-purple-600 flex items-center justify-center shadow-lg">
+                        <i data-lucide="bell" class="w-7 h-7 text-white"></i>
+                    </div>
+                    <div class="text-right">
+                        <p class="text-sm text-gray-500 font-medium">Notices</p>
+                        <p class="text-4xl font-bold text-gray-900">{{ notices_count|default:0 }}</p>
+                    </div>
+                </div>
+                <div class="mt-4 pt-4 border-t border-gray-100">
+                    <a href="{% url 'notices' %}" class="text-purple-600 hover:text-purple-700 font-medium text-sm flex items-center space-x-1">
+                        <span>Manage notices</span>
+                        <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                    </a>
+                </div>
+            </div>
+            
+        </div>
+        
+        <!-- Quick Actions -->
+        <div class="bg-white rounded-2xl shadow-lg p-8 mb-8" data-aos="fade-up">
+            <h2 class="text-2xl font-bold text-gray-900 mb-6 font-display flex items-center space-x-3">
+                <i data-lucide="zap" class="w-6 h-6 text-yellow-500"></i>
+                <span>Quick Actions</span>
+            </h2>
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                
+                <a href="{% url 'create_event' %}" 
+                   class="flex flex-col items-center p-6 bg-gradient-to-br from-blue-50 to-blue-100 hover:from-blue-100 hover:to-blue-200 rounded-xl transition-all duration-200 group">
+                    <div class="w-12 h-12 rounded-full bg-blue-500 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
+                        <i data-lucide="plus-circle" class="w-6 h-6 text-white"></i>
+                    </div>
+                    <span class="font-semibold text-gray-900">Create Event</span>
                 </a>
+                
+                <a href="{% url 'eventspage1' %}" 
+                   class="flex flex-col items-center p-6 bg-gradient-to-br from-green-50 to-green-100 hover:from-green-100 hover:to-green-200 rounded-xl transition-all duration-200 group">
+                    <div class="w-12 h-12 rounded-full bg-green-500 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
+                        <i data-lucide="calendar-days" class="w-6 h-6 text-white"></i>
+                    </div>
+                    <span class="font-semibold text-gray-900">View Events</span>
+                </a>
+                
+                <a href="{% url 'notices' %}" 
+                   class="flex flex-col items-center p-6 bg-gradient-to-br from-purple-50 to-purple-100 hover:from-purple-100 hover:to-purple-200 rounded-xl transition-all duration-200 group">
+                    <div class="w-12 h-12 rounded-full bg-purple-500 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
+                        <i data-lucide="file-text" class="w-6 h-6 text-white"></i>
+                    </div>
+                    <span class="font-semibold text-gray-900">Manage Notices</span>
+                </a>
+                
+                <a href="{% url 'logout' %}" 
+                   class="flex flex-col items-center p-6 bg-gradient-to-br from-red-50 to-red-100 hover:from-red-100 hover:to-red-200 rounded-xl transition-all duration-200 group">
+                    <div class="w-12 h-12 rounded-full bg-red-500 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
+                        <i data-lucide="log-out" class="w-6 h-6 text-white"></i>
+                    </div>
+                    <span class="font-semibold text-gray-900">Logout</span>
+                </a>
+                
             </div>
-        </main>
+        </div>
+        
+        <!-- Recent Activity (Optional placeholder) -->
+        <div class="bg-white rounded-2xl shadow-lg p-8" data-aos="fade-up">
+            <h2 class="text-2xl font-bold text-gray-900 mb-6 font-display flex items-center space-x-3">
+                <i data-lucide="activity" class="w-6 h-6 text-blue-500"></i>
+                <span>Recent Activity</span>
+            </h2>
+            <div class="text-center py-12">
+                <i data-lucide="inbox" class="w-16 h-16 mx-auto mb-4 text-gray-400"></i>
+                <p class="text-gray-500">No recent activity to display</p>
+            </div>
+        </div>
+        
     </div>
+</div>
 
-    <script>
-        function handleMenu() {
-            const navDialog = document.getElementById('nav-dialog');
-            if (navDialog.classList.contains('hidden')) {
-                navDialog.classList.remove('hidden');
-            } else {
-                navDialog.classList.add('hidden');
-            }
-        }
-    </script>
-</body>
-</html>
-{%endblock%} {% endcomment %}
+{% else %}
+<div class="min-h-screen flex items-center justify-center bg-gray-50">
+    <div class="bg-white rounded-2xl shadow-xl p-8 max-w-md text-center" data-aos="fade-up">
+        <div class="w-20 h-20 mx-auto mb-6 rounded-full bg-red-100 flex items-center justify-center">
+            <i data-lucide="alert-circle" class="w-10 h-10 text-red-500"></i>
+        </div>
+        <h2 class="text-2xl font-bold text-gray-900 mb-2">Unauthorized Access</h2>
+        <p class="text-gray-600 mb-6">Please log in to access the coordinator dashboard</p>
+        <a href="{% url 'login' %}" 
+           class="inline-flex items-center space-x-2 bg-[#132E57] hover:bg-[#1e4d8b] text-white px-6 py-3 rounded-lg font-semibold transition-all duration-200">
+            <i data-lucide="log-in" class="w-5 h-5"></i>
+            <span>Login</span>
+        </a>
+    </div>
+</div>
+{% endif %}
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Initialize Lucide icons
+    document.addEventListener('DOMContentLoaded', () => {
+        setTimeout(() => {
+            lucide.createIcons();
+        }, 100);
+    });
+</script>
+{% endblock %}

@@ -5,7 +5,6 @@ import mimetypes
 import json
 from urllib.parse import urlparse
 from typing import List
-import pymysql
 
 # Ensure CSS served with correct mimetype
 mimetypes.add_type("text/css", ".css", True)
@@ -104,33 +103,28 @@ TEMPLATES = [
 WSGI_APPLICATION = "clue.wsgi.application"
 
 # ====== DATABASE ======
-pymysql.install_as_MySQLdb()
-
-# Try reading from DATABASE_URL if provided
+# PostgreSQL Configuration using dj-database-url
 DATABASE_URL = os.getenv("DATABASE_URL")
 
 if DATABASE_URL:
-    parsed = urlparse(DATABASE_URL)
+    import dj_database_url
     DATABASES = {
-        "default": {
-            "ENGINE": "django.db.backends.mysql",
-            "NAME": parsed.path[1:],  # remove leading '/'
-            "USER": parsed.username,
-            "PASSWORD": parsed.password,
-            "HOST": parsed.hostname or "localhost",
-            "PORT": parsed.port or "3306",
-        }
+        "default": dj_database_url.config(
+            default=DATABASE_URL,
+            conn_max_age=600,
+            conn_health_checks=True,
+        )
     }
 else:
-    # fallback if DATABASE_URL not defined
+    # Fallback to PostgreSQL with individual environment variables
     DATABASES = {
         "default": {
-            "ENGINE": "django.db.backends.mysql",
+            "ENGINE": "django.db.backends.postgresql",
             "NAME": os.getenv("DB_NAME", "clue_db"),
-            "USER": os.getenv("DB_USER", "django"),
-            "PASSWORD": os.getenv("DB_PASSWORD", "django123"),
+            "USER": os.getenv("DB_USER", "postgres"),
+            "PASSWORD": os.getenv("DB_PASSWORD", "postgres"),
             "HOST": os.getenv("DB_HOST", "localhost"),
-            "PORT": os.getenv("DB_PORT", "3306"),
+            "PORT": os.getenv("DB_PORT", "5432"),
         }
     }
 
@@ -162,12 +156,36 @@ USE_TZ = True
 STATIC_URL = "/static/"
 STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
 STATICFILES_DIRS = (os.path.join(BASE_DIR, "static"),)
-STORAGES = {
-    "default": {"BACKEND": "django.core.files.storage.FileSystemStorage"},
-    "staticfiles": {"BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage"},
-}
-MEDIA_URL = "/media/"
-MEDIA_ROOT = os.path.join(BASE_DIR, "static", "media")
+
+# Media Storage Configuration
+USE_S3 = os.getenv("USE_S3", "False").lower() in ("1", "true", "yes")
+
+if USE_S3:
+    # AWS S3 Storage Configuration
+    AWS_ACCESS_KEY_ID = os.getenv("AWS_ACCESS_KEY_ID")
+    AWS_SECRET_ACCESS_KEY = os.getenv("AWS_SECRET_ACCESS_KEY")
+    AWS_STORAGE_BUCKET_NAME = os.getenv("AWS_STORAGE_BUCKET_NAME")
+    AWS_S3_REGION_NAME = os.getenv("AWS_S3_REGION_NAME", "us-east-1")
+    AWS_S3_CUSTOM_DOMAIN = f"{AWS_STORAGE_BUCKET_NAME}.s3.amazonaws.com"
+    AWS_S3_OBJECT_PARAMETERS = {"CacheControl": "max-age=86400"}
+    AWS_DEFAULT_ACL = "public-read"
+    
+    # Media files
+    MEDIA_URL = f"https://{AWS_S3_CUSTOM_DOMAIN}/media/"
+    DEFAULT_FILE_STORAGE = "storages.backends.s3boto3.S3Boto3Storage"
+    
+    STORAGES = {
+        "default": {"BACKEND": "storages.backends.s3boto3.S3Boto3Storage"},
+        "staticfiles": {"BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage"},
+    }
+else:
+    # Local file storage (default)
+    STORAGES = {
+        "default": {"BACKEND": "django.core.files.storage.FileSystemStorage"},
+        "staticfiles": {"BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage"},
+    }
+    MEDIA_URL = "/media/"
+    MEDIA_ROOT = os.path.join(BASE_DIR, "static", "media")
 
 # ====== EMAIL ======
 if DEBUG:

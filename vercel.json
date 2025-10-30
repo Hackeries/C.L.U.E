@@ -1,9 +1,27 @@
 {
   "version": 2,
-  "builds": [{ "src": "api/wsgi.py", "use": "@vercel/python" }],
-  "routes": [
-    { "src": "/static/(.*)", "dest": "/staticfiles/$1" },
-    { "src": "/(.*)", "dest": "api/wsgi.py" }
+  "builds": [
+    {
+      "src": "api/wsgi.py",
+      "use": "@vercel/python",
+      "config": {
+        "maxLambdaSize": "15mb",
+        "runtime": "python3.11"
+      }
+    }
   ],
-  "buildCommand": "python -m pip install --upgrade pip && pip install -r requirements.txt && python manage.py collectstatic --noinput"
+  "routes": [
+    {
+      "src": "/static/(.*)",
+      "dest": "/staticfiles/$1"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "api/wsgi.py"
+    }
+  ],
+  "env": {
+    "DJANGO_SETTINGS_MODULE": "clue.settings"
+  },
+  "buildCommand": "bash build.sh"
 }

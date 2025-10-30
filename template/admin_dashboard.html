@@ -1,95 +1,252 @@
 {% load static %}
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="scroll-smooth">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Admin Dashboard — C.L.U.E</title>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-</head>
-<body class="bg-light">
-  <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
-    <div class="container">
-      <a class="navbar-brand fw-bold" href="/">C.L.U.E Admin</a>
-      <div class="ms-auto text-white-50 small">{{ request.user.get_username }}</div>
-    </div>
-  </nav>
-
-  <div class="container my-4">
-    <div class="row g-3">
-      <div class="col-12 col-md-6 col-xl-3">
-        <div class="card shadow-sm h-100">
-          <div class="card-body">
-            <div class="text-muted">Total Users</div>
-            <div class="display-6 fw-bold">{{ total_users }}</div>
-          </div>
-        </div>
-      </div>
-      <div class="col-12 col-md-6 col-xl-3">
-        <div class="card shadow-sm h-100">
-          <div class="card-body">
-            <div class="text-muted">Departments</div>
-            <div class="display-6 fw-bold">{{ total_departments }}</div>
-          </div>
-        </div>
-      </div>
-      <div class="col-12 col-md-6 col-xl-3">
-        <div class="card shadow-sm h-100">
-          <div class="card-body">
-            <div class="text-muted">Clubs</div>
-            <div class="display-6 fw-bold">{{ total_clubs }}</div>
-          </div>
-        </div>
-      </div>
-      <div class="col-12 col-md-6 col-xl-3">
-        <div class="card shadow-sm h-100">
-          <div class="card-body">
-            <div class="text-muted">Events (Upcoming)</div>
-            <div class="display-6 fw-bold">{{ upcoming_events }}</div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <div class="card shadow-sm mt-4">
-      <div class="card-header bg-white">
-        <h5 class="mb-0">Events per Department</h5>
-      </div>
-      <div class="card-body">
-        <canvas id="deptChart" height="120"></canvas>
-      </div>
-    </div>
-  </div>
-
-  <script>
-    const labels = [
-      {% for d in dept_counts %}'{{ d.name|escapejs }}'{% if not forloop.last %}, {% endif %}{% endfor %}
-    ];
-    const counts = [
-      {% for d in dept_counts %}{{ d.count }}{% if not forloop.last %}, {% endif %}{% endfor %}
-    ];
-
-    const ctx = document.getElementById('deptChart').getContext('2d');
-    const chart = new Chart(ctx, {
-      type: 'bar',
-      data: {
-        labels: labels,
-        datasets: [{
-          label: 'Events',
-          data: counts,
-          backgroundColor: 'rgba(13, 110, 253, 0.5)',
-          borderColor: 'rgba(13, 110, 253, 1)',
-          borderWidth: 1
-        }]
-      },
-      options: {
-        responsive: true,
-        scales: {
-          y: { beginAtZero: true, ticks: { precision: 0 } }
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Admin Dashboard — C.L.U.E</title>
+    
+    <!-- TailwindCSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <!-- AOS Animation -->
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
         }
-      }
-    });
-  </script>
+        .font-display {
+            font-family: 'Poppins', sans-serif;
+        }
+    </style>
+</head>
+
+<body class="bg-gray-50">
+    
+    <!-- Top Navigation -->
+    <nav class="bg-gradient-to-r from-[#132E57] to-[#1e4d8b] shadow-lg sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center space-x-3">
+                    <i data-lucide="shield-check" class="w-8 h-8 text-green-400"></i>
+                    <span class="text-white text-xl font-bold font-display">C.L.U.E Admin</span>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <div class="text-white text-sm flex items-center space-x-2">
+                        <i data-lucide="user-circle" class="w-5 h-5"></i>
+                        <span>{{ request.user.get_username }}</span>
+                    </div>
+                    <a href="/" class="text-white hover:text-gray-200 transition-colors">
+                        <i data-lucide="home" class="w-5 h-5"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+    
+    <!-- Main Content -->
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        
+        <!-- Welcome Section -->
+        <div class="mb-8" data-aos="fade-down">
+            <h1 class="text-3xl font-bold text-gray-900 font-display mb-2">Dashboard Overview</h1>
+            <p class="text-gray-600">Manage your platform and monitor key metrics</p>
+        </div>
+        
+        <!-- Stats Grid -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+            
+            <!-- Total Users Card -->
+            <div class="bg-white rounded-2xl shadow-lg p-6 hover:shadow-xl transition-all duration-300" data-aos="fade-up" data-aos-delay="100">
+                <div class="flex items-center justify-between mb-4">
+                    <div class="w-14 h-14 rounded-xl bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center shadow-lg">
+                        <i data-lucide="users" class="w-7 h-7 text-white"></i>
+                    </div>
+                    <div class="text-right">
+                        <p class="text-sm text-gray-500 font-medium">Total Users</p>
+                        <p class="text-4xl font-bold text-gray-900">{{ total_users }}</p>
+                    </div>
+                </div>
+                <div class="mt-4 pt-4 border-t border-gray-100">
+                    <p class="text-sm text-gray-600 flex items-center space-x-1">
+                        <i data-lucide="trending-up" class="w-4 h-4 text-green-500"></i>
+                        <span>Active community</span>
+                    </p>
+                </div>
+            </div>
+            
+            <!-- Departments Card -->
+            <div class="bg-white rounded-2xl shadow-lg p-6 hover:shadow-xl transition-all duration-300" data-aos="fade-up" data-aos-delay="200">
+                <div class="flex items-center justify-between mb-4">
+                    <div class="w-14 h-14 rounded-xl bg-gradient-to-br from-purple-500 to-purple-600 flex items-center justify-center shadow-lg">
+                        <i data-lucide="building" class="w-7 h-7 text-white"></i>
+                    </div>
+                    <div class="text-right">
+                        <p class="text-sm text-gray-500 font-medium">Departments</p>
+                        <p class="text-4xl font-bold text-gray-900">{{ total_departments }}</p>
+                    </div>
+                </div>
+                <div class="mt-4 pt-4 border-t border-gray-100">
+                    <p class="text-sm text-gray-600 flex items-center space-x-1">
+                        <i data-lucide="layers" class="w-4 h-4 text-purple-500"></i>
+                        <span>Academic units</span>
+                    </p>
+                </div>
+            </div>
+            
+            <!-- Clubs Card -->
+            <div class="bg-white rounded-2xl shadow-lg p-6 hover:shadow-xl transition-all duration-300" data-aos="fade-up" data-aos-delay="300">
+                <div class="flex items-center justify-between mb-4">
+                    <div class="w-14 h-14 rounded-xl bg-gradient-to-br from-green-500 to-green-600 flex items-center justify-center shadow-lg">
+                        <i data-lucide="users-round" class="w-7 h-7 text-white"></i>
+                    </div>
+                    <div class="text-right">
+                        <p class="text-sm text-gray-500 font-medium">Clubs</p>
+                        <p class="text-4xl font-bold text-gray-900">{{ total_clubs }}</p>
+                    </div>
+                </div>
+                <div class="mt-4 pt-4 border-t border-gray-100">
+                    <p class="text-sm text-gray-600 flex items-center space-x-1">
+                        <i data-lucide="sparkles" class="w-4 h-4 text-green-500"></i>
+                        <span>Active communities</span>
+                    </p>
+                </div>
+            </div>
+            
+            <!-- Upcoming Events Card -->
+            <div class="bg-white rounded-2xl shadow-lg p-6 hover:shadow-xl transition-all duration-300" data-aos="fade-up" data-aos-delay="400">
+                <div class="flex items-center justify-between mb-4">
+                    <div class="w-14 h-14 rounded-xl bg-gradient-to-br from-orange-500 to-red-500 flex items-center justify-center shadow-lg">
+                        <i data-lucide="calendar" class="w-7 h-7 text-white"></i>
+                    </div>
+                    <div class="text-right">
+                        <p class="text-sm text-gray-500 font-medium">Upcoming Events</p>
+                        <p class="text-4xl font-bold text-gray-900">{{ upcoming_events }}</p>
+                    </div>
+                </div>
+                <div class="mt-4 pt-4 border-t border-gray-100">
+                    <p class="text-sm text-gray-600 flex items-center space-x-1">
+                        <i data-lucide="clock" class="w-4 h-4 text-orange-500"></i>
+                        <span>Scheduled soon</span>
+                    </p>
+                </div>
+            </div>
+            
+        </div>
+        
+        <!-- Chart Section -->
+        <div class="bg-white rounded-2xl shadow-lg p-8" data-aos="fade-up">
+            <div class="flex items-center justify-between mb-6">
+                <div>
+                    <h2 class="text-2xl font-bold text-gray-900 font-display">Events per Department</h2>
+                    <p class="text-gray-600 text-sm mt-1">Distribution of events across departments</p>
+                </div>
+                <div class="w-10 h-10 rounded-lg bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center">
+                    <i data-lucide="bar-chart" class="w-6 h-6 text-white"></i>
+                </div>
+            </div>
+            <div class="relative" style="height: 400px;">
+                <canvas id="deptChart"></canvas>
+            </div>
+        </div>
+        
+    </div>
+    
+    <!-- Chart.js Configuration -->
+    <script>
+        const labels = [
+            {% for d in dept_counts %}'{{ d.name|escapejs }}'{% if not forloop.last %}, {% endif %}{% endfor %}
+        ];
+        const counts = [
+            {% for d in dept_counts %}{{ d.count }}{% if not forloop.last %}, {% endif %}{% endfor %}
+        ];
+        
+        const ctx = document.getElementById('deptChart').getContext('2d');
+        const gradient = ctx.createLinearGradient(0, 0, 0, 400);
+        gradient.addColorStop(0, 'rgba(102, 126, 234, 0.8)');
+        gradient.addColorStop(1, 'rgba(118, 75, 162, 0.8)');
+        
+        const chart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Events',
+                    data: counts,
+                    backgroundColor: gradient,
+                    borderColor: 'rgba(102, 126, 234, 1)',
+                    borderWidth: 2,
+                    borderRadius: 8,
+                    borderSkipped: false,
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false
+                    },
+                    tooltip: {
+                        backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                        padding: 12,
+                        borderRadius: 8,
+                        titleFont: {
+                            size: 14,
+                            weight: 'bold'
+                        },
+                        bodyFont: {
+                            size: 13
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            font: {
+                                size: 12
+                            }
+                        },
+                        grid: {
+                            color: 'rgba(0, 0, 0, 0.05)'
+                        }
+                    },
+                    x: {
+                        ticks: {
+                            font: {
+                                size: 12
+                            }
+                        },
+                        grid: {
+                            display: false
+                        }
+                    }
+                }
+            }
+        });
+        
+        // Initialize Lucide icons
+        lucide.createIcons();
+        
+        // Initialize AOS
+        AOS.init({
+            duration: 800,
+            easing: 'ease-in-out',
+            once: true
+        });
+    </script>
+    
 </body>
 </html>

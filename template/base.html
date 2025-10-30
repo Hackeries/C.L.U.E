@@ -135,7 +135,7 @@
                 <!-- Mobile Menu Button -->
                 <button @click="mobileMenuOpen = !mobileMenuOpen" class="lg:hidden text-white focus:outline-none">
                     <i data-lucide="menu" class="w-6 h-6" x-show="!mobileMenuOpen"></i>
-                    <i data-lucide="x" class="w-6 h-6" x-show="mobileMenuOpen" style="display: none;"></i>
+                    <i data-lucide="x" class="w-6 h-6" x-show="mobileMenuOpen"></i>
                 </button>
             </div>
         </div>
@@ -148,7 +148,6 @@
              x-transition:leave="transition ease-in duration-150"
              x-transition:leave-start="opacity-100 transform translate-y-0"
              x-transition:leave-end="opacity-0 transform -translate-y-2"
-             style="display: none;"
              class="lg:hidden bg-[#0d1f3d]">
             <div class="px-4 pt-2 pb-4 space-y-2">
                 <a href="{% url 'home' %}" class="flex items-center space-x-2 text-white hover:bg-white hover:bg-opacity-10 px-4 py-3 rounded-lg transition-colors">
@@ -329,9 +328,7 @@
         setTimeout(() => {
             const messages = document.querySelectorAll('[x-data*="showMessages"]');
             messages.forEach(msg => {
-                if (msg.__x) {
-                    msg.__x.$data.showMessages = false;
-                }
+                msg.__x.$data.showMessages = false;
             });
         }, 5000);
     </script>
@@ -339,11 +336,3 @@
     {% block extra_js %}{% endblock %}
 </body>
 </html>
-
-
-
-
-
-
-
-

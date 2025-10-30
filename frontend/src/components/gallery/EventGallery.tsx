@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Upload, X, Loader2, Image as ImageIcon, Trash2 } from 'lucide-react'
+import { Upload, Loader2, Image as ImageIcon, Trash2 } from 'lucide-react'
 import { Button } from '../ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/card'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '../ui/dialog'
@@ -8,7 +8,7 @@ import { Input } from '../ui/input'
 import { Label } from '../ui/label'
 import { uploadFile, getPublicUrl, deleteFile } from '../../lib/supabase'
 import { toast } from 'sonner'
-import type { EventGallery } from '../../types'
+import type { EventGallery as EventGalleryType } from '../../types'
 
 interface EventGalleryProps {
   eventId: number
@@ -16,8 +16,8 @@ interface EventGalleryProps {
   isAdmin?: boolean
 }
 
-export const EventGallery = ({ eventId, eventName, isAdmin = false }: EventGalleryProps) => {
-  const [images, setImages] = useState<EventGallery[]>([])
+export function EventGallery({ eventId, eventName, isAdmin = false }: EventGalleryProps) {
+  const [images, setImages] = useState<EventGalleryType[]>([])
   const [loading, setLoading] = useState(true)
   const [uploading, setUploading] = useState(false)
   const [selectedImage, setSelectedImage] = useState<string | null>(null)
@@ -48,7 +48,7 @@ export const EventGallery = ({ eventId, eventName, isAdmin = false }: EventGalle
       const fileExt = file.name.split('.').pop()
       const fileName = `${eventId}/${Date.now()}-${Math.random().toString(36).substring(2)}.${fileExt}`
 
-      const { data, error } = await uploadFile('event-gallery', fileName, file)
+      const { error } = await uploadFile('event-gallery', fileName, file)
 
       if (error) {
         toast.error(`Failed to upload ${file.name}`)
@@ -64,7 +64,7 @@ export const EventGallery = ({ eventId, eventName, isAdmin = false }: EventGalle
     })
 
     try {
-      const uploadedImages = (await Promise.all(uploadPromises)).filter(Boolean) as EventGallery[]
+      const uploadedImages = (await Promise.all(uploadPromises)).filter(Boolean) as EventGalleryType[]
       setImages([...images, ...uploadedImages])
       toast.success(`Successfully uploaded ${uploadedImages.length} image(s)`)
       setUploadDialogOpen(false)
@@ -76,7 +76,7 @@ export const EventGallery = ({ eventId, eventName, isAdmin = false }: EventGalle
     }
   }
 
-  const handleDelete = async (image: EventGallery) => {
+  const handleDelete = async (image: EventGalleryType) => {
     if (!confirm('Are you sure you want to delete this image?')) return
 
     try {
